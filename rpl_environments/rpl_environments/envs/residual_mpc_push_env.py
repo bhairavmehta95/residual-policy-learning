@@ -39,13 +39,13 @@ class MPCPushEnv(gym.Env):
         self.fetch_env.env._render_callback()
 
         if mode == 'rgb_array':
-            self.fetch_env.env._get_viewer().render()
+            self.fetch_env.env._get_viewer(mode="human").render()
             width, height = 3350, 1800
-            data = self.fetch_env.env._get_viewer().read_pixels(width, height, depth=False)
+            data = self.fetch_env.env._get_viewer(mode="human").read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]
         elif mode == 'human':
-            self.fetch_env.env._get_viewer().render()
+            self.fetch_env.env._get_viewer(mode="human").render()
 
         return self.fetch_env.render(*args, **kwargs)
 
@@ -74,6 +74,7 @@ class ResidualMPCPushEnv(gym.Env):
         action = np.clip(action, -1, 1)
         observation, reward, done, debug_info = self.fetch_env.step(self.action_scale * action)
         self._last_observation = observation
+        debug_info['sim_state'] = sim_state
 
         return observation, reward, done, debug_info
 
@@ -93,13 +94,13 @@ class ResidualMPCPushEnv(gym.Env):
         self.fetch_env.env._render_callback()
 
         if mode == 'rgb_array':
-            self.fetch_env.env._get_viewer().render()
+            self.fetch_env.env._get_viewer(mode="human").render()
             width, height = 3350, 1800
-            data = self.fetch_env.env._get_viewer().read_pixels(width, height, depth=False)
+            data = self.fetch_env.env._get_viewer(mode="human").read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]
         elif mode == 'human':
-            self.fetch_env.env._get_viewer().render()
+            self.fetch_env.env._get_viewer(mode="human").render()
 
         return self.fetch_env.render(*args, **kwargs)
 
@@ -107,5 +108,13 @@ class ResidualMPCPushEnv(gym.Env):
         return self.fetch_env.compute_reward(*args, **kwargs)
 
 
+if __name__ == '__main__':
+    for timestep in [0.002, 0.004, 0.008, 0.012]:
+        env = ResidualMPCPushEnv()
+        env.reset()
 
+        for _ in range(200):
+            s, r, d, _ = env.step(np.zeros(env.action_space.shape))
+            env.render()
+            if d: env.reset()
 

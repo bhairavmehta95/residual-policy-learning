@@ -39,13 +39,13 @@ class FetchHookEnv(fetch_env.FetchEnv, utils.EzPickle):
         # See https://github.com/openai/gym/issues/1081
         self._render_callback()
         if mode == 'rgb_array':
-            self._get_viewer().render()
+            self._get_viewer(mode="human").render()
             width, height = 3350, 1800
-            data = self._get_viewer().read_pixels(width, height, depth=False)
+            data = self._get_viewer(mode="human").read_pixels(width, height, depth=False)
             # original image is upside-down, so flip it
             return data[::-1, :, :]
         elif mode == 'human':
-            self._get_viewer().render()
+            self._get_viewer(mode="human").render()
 
         return super(FetchHookEnv, self).render(*args, **kwargs)
 
